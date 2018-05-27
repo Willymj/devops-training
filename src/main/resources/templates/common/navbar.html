@@ -23,7 +23,14 @@
 
             <ul class="nav navbar-nav navbar-right">
 
-                <li><a th:text="#{navbar.login.text}" th:href="@{/login}"></a></li>
+                <li th:if="${#authorization.expression('!isAuthenticated()')}">
+                    <a th:text="#{navbar.login.text}" th:href="@{/login}"></a>
+                </li>
+                <li th:if="${#authorization.expression('isAuthenticated()')}">
+                    <form id="f" th:action="@{/logout}" method="post" role="form" class="navbar-form">
+                        <button type="submit" class="btn btn-primary" th:text="#{navbar.logout.text}" />
+                    </form>
+                </li>
             </ul>
         </div><!--/.nav-collapse -->
     </div>
