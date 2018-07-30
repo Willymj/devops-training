@@ -7,6 +7,8 @@ import com.devopstraining.backend.persistence.domain.backend.UserRole;
 import com.devopstraining.backend.persistence.repositories.PlanRepository;
 import com.devopstraining.backend.persistence.repositories.RoleRepository;
 import com.devopstraining.backend.persistence.repositories.UserRepository;
+import com.devopstraining.enums.PlansEnum;
+import com.devopstraining.enums.RolesEnum;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +20,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.devopstraining.utils.UsersUtils.createBasicUser;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -31,10 +35,7 @@ public class RepositoriesIntegrationTest {
 
     @Autowired
     private PlanRepository planRepository;
-
-    private static final int BASIC_PLAN_ID = 1;
-    private static final int BASIC_ROLE_ID = 1;
-
+    
     @Before
     public void init(){
         Assert.assertNotNull(userRepository);
@@ -46,10 +47,10 @@ public class RepositoriesIntegrationTest {
     public void testCreateNewPlan() throws Exception{
 
         // Given
-        Plan basicPlan = createBasicPlan();
+        Plan basicPlan = createPlan(PlansEnum.BASIC);
         planRepository.save(basicPlan);
         // When
-        Optional<Plan> retrievedPlan = planRepository.findById(BASIC_PLAN_ID);
+        Optional<Plan> retrievedPlan = planRepository.findById(PlansEnum.BASIC.getId());
         // Then
         Assert.assertNotNull(retrievedPlan);
 
@@ -59,10 +60,10 @@ public class RepositoriesIntegrationTest {
     public void testCreateNewRole() throws Exception{
 
         // Given
-        Role basicRole = createBasicRole();
+        Role basicRole = createRole(RolesEnum.BASIC);
         roleRepository.save(basicRole);
         // When
-        Optional<Role> retrievedRole = roleRepository.findById(BASIC_ROLE_ID);
+        Optional<Role> retrievedRole = roleRepository.findById(RolesEnum.BASIC.getId());
         // Then
         Assert.assertNotNull(retrievedRole);
     }
@@ -71,17 +72,15 @@ public class RepositoriesIntegrationTest {
     public void createNewUser() throws Exception{
 
         // Given
-        Plan basicPlan = createBasicPlan();
+        Plan basicPlan = createPlan(PlansEnum.BASIC);
         planRepository.save(basicPlan);
 
         User basicUser = createBasicUser();
         basicUser.setPlan(basicPlan);
 
-        Role basicRole = createBasicRole();
+        Role basicRole = createRole(RolesEnum.BASIC);
         Set<UserRole> userRoles = new HashSet<UserRole>();
-        UserRole userRole = new UserRole();
-        userRole.setRole(basicRole);
-        userRole.setUser(basicUser);
+        UserRole userRole = new UserRole(basicUser, basicRole);
         userRoles.add(userRole);
 
         basicUser.getUserRoles().addAll(userRoles);
@@ -103,33 +102,13 @@ public class RepositoriesIntegrationTest {
     }
 
     // --------------> Private methods
-    private Plan createBasicPlan() {
-        Plan plan = new Plan();
-        plan.setId(BASIC_PLAN_ID);
-        plan.setName("basic");
-        return plan;
+    private Plan createPlan(PlansEnum plansEnum) {
+        return new Plan(plansEnum);
     }
 
-    private Role createBasicRole(){
-        Role role = new Role();
-        role.setId(BASIC_ROLE_ID);
-        role.setName("ROLE_USER");
-        return role;
+    private Role createRole(RolesEnum rolesEnum){
+        return new Role(rolesEnum);
     }
 
-    private User createBasicUser(){
-        User user = new User();
-        user.setUsername("basicUser");
-        user.setCountry("France");
-        user.setDescription("Descrition");
-        user.setEmail("user@me.com");
-        user.setFirstname("Firstname");
-        user.setLastname("Lastname");
-        user.setPassword("secret");
-        user.setPhoneNumber("0606060606");
-        user.setEnabled(true);
-        user.setProfileImageUrl("https://blabla.images.com/basicuser");
-        return user;
-    }
 
 }
